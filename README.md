@@ -171,7 +171,7 @@ Element state come into existence lazily when the element in the view is first c
 - **all** - creates element state via a *new* controller instance - *always*
 - **diff** - uses the state of the *current* controller instance 
  - *if it exists*
- - *otherwise as **all** *
+ - *otherwise as*  **all**
 
 ### Element identity
 In most cases, this extended state management strategy is silently implemented by the Mithril.Elements. In all of the examples presented so far, explicit reference to state management is not mentioned. However there are some programming scenarios where this strategy will fail. 
@@ -179,20 +179,26 @@ In most cases, this extended state management strategy is silently implemented b
 Mithril.Elements does not attempt to track element state through dynamically changing page layouts and relies instead on view generated identity using the following logical sequence:
 
 - use the virtual Element key attribute if it exists:
+
  ```javascript
-m('greet',{key:'bob1'}, 'Bob') // component identity is bob1
+ m('greet',{key:'bob1'}, 'Bob') // component identity is bob1
  ```
+
 - use the virtual Element id attribute if it exists:
+
  ```javascript
-m('greet#bob2', 'Bob')         // component identity is bob2
-m('greet',{id:'bob2'}, 'Bob')  // component identity is bob2
+ m('greet#bob2', 'Bob')         // component identity is bob2
+ m('greet',{id:'bob2'}, 'Bob')  // component identity is bob2
  ```
 - use the element state.id attribute if it exists:
+ 
  ```javascript
-m('greet',{state:{id='bob3'}}) // component identity is bob3
+ m('greet',{state:{id='bob3'}}) // component identity is bob3
  ```
+ 
 - Default: generate a sequential id, keyed on page refresh. This option is not suitable
 for lists or for pages that are composed logically:
+ 
  ```javascript
 m('greet', 'Bob')              // component identity is greet1
  ```
@@ -255,29 +261,29 @@ m('#todoapp',[
 ])
 ```
 
-2. Preventing recursion when Overriding native elements
+2. Preventing recursion when overriding native elements
 
- ```javascript
+```javascript
 view:function(ctrl){
-    return m('$table',{style:{ // escape table to prevent recursion
-      display:'block',
-      overflow:'scroll',
-      height:ctrl.height
-    },
-    config:ctrl.setup})
+  return m('$table',{style:{ // escape table to prevent recursion
+    display:'block',
+    overflow:'scroll',
+    height:ctrl.height
+  },
+  config:ctrl.setup})
 }
- ```
+```
   
 ## Composability
 Mithril.Elements supports two composability patterns: lexical and parent-child.
 
 Lexical composability (the standard mithril pattern) means that sibling elements are compiled in order of definition and child elements before parents:
 ```javascript
-m('.main', [          // order of compilation -->
-  m('sib-1'),       // sib-1 :         :
-    m('sib-2',[       //       :         : sib-2
-      m('child-1')  //       : child-1 :
-    ])
+m('.main', [         // order of compilation -->
+   m('sib-1'),       // sib-1 :         :
+   m('sib-2',[       //       :         : sib-2
+      m('child-1')   //       : child-1 :
+   ])
 ])
 ```
 Normally this does not matter because the elements are [orthogonal] and they all end up being compiled before the DOM build phase. However, when creating higher order custom elements, compilation order becomes an issue for parent-child relationships.
