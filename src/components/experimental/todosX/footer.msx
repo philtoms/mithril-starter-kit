@@ -1,0 +1,35 @@
+'use strict';
+
+var app = require('./app');
+
+module.exports = function(ctrl) { 
+
+var completed = ctrl.amountCompleted();
+
+return <$footer id="footer">
+    <span id="todo-count"><strong>{app.todoCount}</strong> item{app.todoCount > 1 ? 's ' : ' '}left</span>
+    <ul id="filters">
+        <li>
+            <a href="/todos-xp" 
+                config={m.route}
+                class={ctrl.filter() == '' ? 'selected' : ''}
+            >All</a>
+        </li>
+        <li>
+            <a href="/todos-xp/active"
+                config={m.route}
+                class={ctrl.filter() == 'active' ? 'selected' : ''}
+            >Active</a>
+        </li>
+        <li>
+            <a href="/todos-xp/completed"
+                config={m.route}
+                class={ctrl.filter() == 'completed' ? 'selected' : ''}
+            >Completed</a>
+        </li>
+    </ul>
+    {completed == 0 ? '' : <button id="clear-completed"
+        onclick={ctrl.clearCompleted}
+    >Clear completed ({completed})</button>}
+</$footer>
+}
