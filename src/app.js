@@ -27,7 +27,7 @@ var app = function(tabNumber){
       // initialize the pages as singletons
       this.todos       = require('./components/todos').instance();
       this.accordion1  = require('./components/demos/accordion').instance();
-      this.accordion2  = require('./components/demos/accordion').instance();
+      this.accordion2  = require('./components/demos/accordion').instance({toggle:true});
       this.modal       = require('./components/demos/modal').instance();
       this.experimental= require('./components/experimental/todosX').instance();
     },

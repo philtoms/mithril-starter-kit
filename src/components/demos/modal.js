@@ -2,7 +2,13 @@
 
 module.exports = m.element('modal-demo', {
   controller: function() {
-    this.trigger = m.prop();
+    // provide a boolean trigger for the dialog to
+    // read open / closed state
+    this.trigger = m.prop(false);
+
+    this.save = function(){
+      setTimeout(function(){window.alert('saved');},100);
+    };
   },
   view: function(ctrl, content) {
   	return [
@@ -11,7 +17,9 @@ module.exports = m.element('modal-demo', {
         title:'A Modal Title',
         body: ['Another fine example...',
           m('p',' of a work in progress')
-        ]
+        ],
+        cancel: 'Cancel',
+        ok: m('.save', {onclick:ctrl.save.bind(ctrl)}, 'Save Changes')
       };
     })];
   }

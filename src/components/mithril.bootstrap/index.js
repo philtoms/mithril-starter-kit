@@ -1,9 +1,19 @@
 'use strict';
 
 var accordion = m.element('accordion', {
-  controller: function() {
+  controller: function(options) {
+    options = options || {};
+    var open=[];
     this.toggle = function(id){
-      this.open=id;
+      if (options.toggle){
+        open[id]=!open[id];
+      }
+      else {
+        open = id;
+      }
+    };
+    this.isOpen = function(id){
+      return id === open || options.toggle && open[id];
     };
   },
   view: function(ctrl, content) {
@@ -15,7 +25,7 @@ var accordion = m.element('accordion', {
           onclick:ctrl.toggle.bind(ctrl,id)
         },
         m('.panel-title',title)),
-        m('div.panel-body',{style:'display:'+(ctrl.open===id? 'block':'none')},content)
+        m('div.panel-body',{style:'display:'+(ctrl.isOpen(id)? 'block':'none')},content)
       ];
     }));
   }
@@ -45,13 +55,13 @@ var modal = m.element('modal', {
       }
       options.trigger(false);
       document.body.removeEventListener('click', close);
-      m.redraw();
+      if (e) m.redraw();
     }
+    this.close = {onclick:function(){close();}};
     this.state = options.trigger;
-    this.trigger = {onclick:function(){close();}};
-    this.bind = function(element,once){
-      if (options.trigger()){
-        modal=element;
+    this.bind = function(element, done){
+      modal=element;
+      if (!done && options.trigger()){
         setTimeout(function(){
           document.body.addEventListener('click', close);
         });
@@ -61,18 +71,18 @@ var modal = m.element('modal', {
 
   view: function(ctrl,inner) {
     inner = inner();
-    return m((ctrl.state()? 'div':'.modal.fade'), {config:ctrl.bind}, [
+    return m((ctrl.state()? '.is-open':'.modal.fade'), {config:ctrl.bind}, [
       m('.modal-dialog', [
         m('.modal-content', [
           m('.modal-header', [
             m('button.close[type="button" data-dismiss="modal" aria-label="Close"]',
-              m('span[aria-hidden=true]', ctrl.trigger, m.trust('&times;'))),
+              m('span[aria-hidden=true]', ctrl.close, m.trust('&times;'))),
             m('h4.modal-title', inner.title)
           ]),
           m('.modal-body', inner.body),
           m('.modal-footer', [
-            m('button.btn.btn-default[type="button" data-dismiss="modal"]', ctrl.trigger, 'Close'),
-            m('button.btn.btn-primary[type="button"]', ctrl.trigger, 'Save changes')
+            m('button.btn.btn-default[type="button" data-dismiss="modal"]', ctrl.close, inner.cancel || 'Close'),
+            inner.ok? m('button.btn.btn-primary[type="button"]', ctrl.close, inner.ok):''
           ])
         ])
       ])
