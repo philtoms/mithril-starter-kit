@@ -1,5 +1,5 @@
 # Mithril.Elements Starter Kit
-Mithril.Elements is a thin wrapper around the [Mithril] JavaScript framework that allows you to create composable custom element types:
+[Mithril.Elements] is a thin wrapper around the [Mithril] JavaScript framework that allows you to create composable custom element types:
 ```javascript
 m('greet', 'Bob')
 ```
@@ -73,17 +73,21 @@ Three ways to use Mithril.Elements:
 1. download [this project](
 https://github.com/philtoms/mithril.elements/archive/master.zip
 ) and link to mithril and mithril.elements in the head of your app
+
  ```html
-    <head>
-        <meta charset="utf-8">
-        <script src="mithril.js"></script>
-        <script src="mithril.elementsjs"></script>
-    </head>
+  <head>
+      <meta charset="utf-8">
+      <script src="mithril.js"></script>
+      <script src="mithril.elementsjs"></script>
+  </head>
  ```
+
 2. easier - npm install mithril.elements into your current Mithril project and require in your app
+
  ```shell
 npm install --save mithril.elements
 ```
+
  ```javascript
  //  (Broswerify or WebPack)
  var m =  require('mithril.elements'); 
@@ -96,6 +100,7 @@ $ git clone -o upstream https://github.com/philtoms/mithril-starter-kit.git MyAp
 $ cd MyApp
 $ npm install -g gulp           # Install Gulp task runner globally
 $ npm install                   # Install Node.js components listed in ./package.json
+bower install                   # only required for todomvc-common
  ```
  shell commands:
  ```
@@ -123,11 +128,12 @@ m.element('accordion', {
       return 'display:'+(ctrl.open===id? 'block':'none') 
     }
     return m('.accordion', content.map(function(line,id){
+      var title = line.children[0], content = line.children[1]
       return m(line,{
         onclick:ctrl.toggle.bind(ctrl,id)
       },[
-        line.children[0],
-        m('div',{style:display(id)},line.children[1])
+        title,
+        m('div',{style:display(id)},content)
       ])
     }))
   }
@@ -143,8 +149,6 @@ m('accordion', [
 ])
 ```
 
-[view in plunkr](http://embed.plnkr.co/FuSEJtlhvv4yqKN8Ohjd/preview)
-
 Sometimes you don't need to use the controller part of an element. In this situation you can leave it out of the definition and Mithril.Elements will provide a default controller:
 ```javascript
 m.element('jumbotron', {
@@ -157,6 +161,7 @@ m.element('jumbotron', {
   }
 })
 ```
+
 Note that the view can still receive the controller instance and can therefore access any state passed to the view through the controller.state property:
 ```javascript
 view: function(ctrl) {
@@ -174,7 +179,7 @@ Element state come into existence lazily when the element in the view is first c
  - *otherwise as*  **all**
 
 ### Element identity
-In most cases, this extended state management strategy is silently implemented by the Mithril.Elements. In all of the examples presented so far, explicit reference to state management is not mentioned. However there are some programming scenarios where this strategy will fail. 
+In most cases, this extended state management strategy is silently implemented by Mithril.Elements. In all of the examples presented so far, explicit reference to state management is not mentioned. However there are some programming scenarios where this strategy will fail. 
 
 Mithril.Elements does not attempt to track element state through dynamically changing page layouts and relies instead on view generated identity using the following logical sequence:
 
@@ -197,7 +202,7 @@ Mithril.Elements does not attempt to track element state through dynamically cha
  ```
  
 - Default: generate a sequential id, keyed on page refresh. This option is not suitable
-for lists or for pages that are composed logically:
+for sortable lists or for pages that are composed logically:
  
  ```javascript
 m('greet', 'Bob')              // component identity is greet1
@@ -248,7 +253,7 @@ launcherFactory.instance().useTinfoilShielding(true);
 ### Escaping element tag names
 Element tag names can be escaped by preceeding them with the **$** sign to prevent them from being compiled into components. There are two situations where this can be useful:
 
-1. Using custom elements as templates in a parent-child relationship
+Using custom elements as templates in a parent-child relationship:
 ```javascript
 m('#todoapp',[
     m('header',[
@@ -261,8 +266,7 @@ m('#todoapp',[
 ])
 ```
 
-2. Preventing recursion when overriding native elements
-
+Preventing recursion when overriding native elements:
 ```javascript
 view:function(ctrl){
   return m('$table',{style:{ // escape table to prevent recursion
@@ -277,7 +281,7 @@ view:function(ctrl){
 ## Composability
 Mithril.Elements supports two composability patterns: lexical and parent-child.
 
-Lexical composability (the standard mithril pattern) means that sibling elements are compiled in order of definition and child elements before parents:
+Lexical composability (the standard mithril pattern) means that sibling elements are compiled in order of definition, and child elements are compiled before parents:
 ```javascript
 m('.main', [         // order of compilation -->
    m('sib-1'),       // sib-1 :         :
@@ -288,7 +292,7 @@ m('.main', [         // order of compilation -->
 ```
 Normally this does not matter because the elements are [orthogonal] and they all end up being compiled before the DOM build phase. However, when creating higher order custom elements, compilation order becomes an issue for parent-child relationships.
 
-Parent-child composibility uses the factory pattern to reverse the compilation order so that the child is compiled in the context of the parent:
+Parent-child composibility uses the factory pattern to invert the compilation order so that the child is compiled in the context of the parent:
 ```javascript
 m('table', [                            //       :    :    :    : table
   m('tbody', function(content){return [ // tbody :    :    :    :
@@ -333,7 +337,6 @@ m.element('accordion', {
   }
 })
 ```
-[view in plunkr](http://embed.plnkr.co/FuSEJtlhvv4yqKN8Ohjd/preview)
 
 The Mithril component signature has been modified for semantic components in the following ways:
 
@@ -385,11 +388,9 @@ The signature has been modified in the following ways:
  
  In both cases, the component view will be called on every redraw, but only after the controller has been invoked.
  
-- **attrs** - The attrs argument accepts a spcial property named **state**. The value of the state property will be passed unchanged to the controller constructor. The full signature must be used when passing state data to a component constructor:
+- **attrs** - The attrs argument accepts a special property named **state**. The value of the state property will be passed unchanged to the controller constructor:
 
  ```javascript
-  // Note that the full signature must be used 
-  // when passing data to the controller
   m('tbody', {state:{rows:12, content:hugeArray}}, function(content){return [
     m('td', content.name),
     m('td', content.posts),
@@ -435,6 +436,7 @@ file in the project root. Documentation to the project is licensed under the
 
 
 [Mithril]: http://lhorie.github.io/mithril/index.html
+[Mithril.Elements]:https://github.com/philtoms/mithril.elements
 [m()]:http://lhorie.github.io/mithril/mithril.html
 [components]: http://lhorie.github.io/mithril/components.html
 [redraw strategy]:http://lhorie.github.io/mithril/mithril.redraw.html#strategy
