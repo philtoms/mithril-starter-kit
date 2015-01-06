@@ -46,32 +46,32 @@ var jumbotron = m.element('jumbotron', {
 var modal = m.element('modal', {
 
   controller: function(options) {
-    var modal;
+    var open, backdrop, saveBodyClass='';
     function close(e){
-      if (e) for (var t=e.target; t!=document.body;t=t.parentElement){
-        if (t===modal) {
-          return;
-        }
-      }
+      open = false;
       options.trigger(false);
-      document.body.removeEventListener('click', close);
+      document.body.className=saveBodyClass;
       if (e) m.redraw();
     }
     this.close = {onclick:function(){close();}};
     this.state = options.trigger;
-    this.bind = function(element, done){
-      modal=element;
-      if (!done && options.trigger()){
-        setTimeout(function(){
-          document.body.addEventListener('click', close);
-        });
+    this.bind = function(element){
+      if (!open && options.trigger()){
+        open=element;
+        saveBodyClass = document.body.className;
+        document.body.className += ' modal-open';
+        backdrop = element.getElementsByClassName('modal-backdrop')[0];
+        backdrop.setAttribute('style', 'height:'+document.documentElement.clientHeight+'px');
+        backdrop.addEventListener('click', close);
       }
     };
   },
 
   view: function(ctrl,inner) {
     inner = inner();
-    return m((ctrl.state()? '.is-open':'.modal.fade'), {config:ctrl.bind}, [
+    var isOpen = ctrl.state();
+    return m((isOpen? '.is-open':'.modal.fade'), {config:ctrl.bind}, [
+      (isOpen? m('.modal-backdrop.fade.in'):''),
       m('.modal-dialog', [
         m('.modal-content', [
           m('.modal-header', [
