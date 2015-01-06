@@ -12,7 +12,7 @@ function gettersetter(store,cb) {
     if (arguments.length) {
       store = arguments[0];
       if (cb){
-        cb.call(this,store);
+        cb.call(null,store);
       }
     }
     return store;
@@ -23,7 +23,7 @@ function gettersetter(store,cb) {
   };
 
   if (cb){
-    cb.call(this,store);
+    cb.call(null,store);
   }
   return prop;
 }
