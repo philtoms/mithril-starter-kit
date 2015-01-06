@@ -22,6 +22,9 @@ function gettersetter(store,cb) {
     return store;
   };
 
+  if (cb){
+    cb.call(this,store);
+  }
   return prop;
 }
 
@@ -32,6 +35,8 @@ function prop(store,cb) {
 var model = {
   Todo: function (data) {
 
+    var that = this;
+
     this.id = data.id || ++topId;
     this.title = prop(data.title);
 
@@ -40,15 +45,15 @@ var model = {
     });
 
     this.editing = prop(data.editing || false, function(){
-      this.title(this.title().trim());
-      if (!this.title()) {
-        this.remove();
+      that.title(that.title().trim());
+      if (!that.title()) {
+        that.remove();
       }
       storage.put(list);
     });
     
     this.remove = function () {
-      list.splice(list.indexOf(this), 1);
+      list.splice(list.indexOf(that), 1);
       storage.put(list);
     };
     

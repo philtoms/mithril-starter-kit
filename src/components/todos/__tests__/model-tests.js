@@ -14,7 +14,6 @@ jest.dontMock('../model');
 
 describe('model.persistence', function() {
 
-  debugger
 	var model = require('../model');
   var storage = require('../storage');
 

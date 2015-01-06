@@ -1,5 +1,19 @@
 'use strict';
 
+var scrollbarWidth = (function () {
+  var scrollbarWidth;
+  return function(){
+    if (scrollbarWidth===undefined){
+      var scrollDiv = document.createElement('div');
+      scrollDiv.className = 'modal-scrollbar-measure';
+      document.body.appendChild(scrollDiv);
+      scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      document.body.removeChild(scrollDiv);
+    }
+    return scrollbarWidth;    
+  };
+})();
+
 var accordion = m.element('accordion', {
   controller: function(options) {
     options = options || {};
