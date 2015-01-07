@@ -36,7 +36,7 @@ var app = function(tabNumber){
       return [
         m('jumbotron',[
           m('h1','Mithril Starter Kit'),
-          m('h3','with Mithrel.Elements v0.1.0')
+          m('h3','with Mithril.Elements v0.1.1')
         ]),
         m('h2.text-center', 'Click on any of the tab pills below'),
         m('h4.text-center','to reveal some custom elements in action'),
