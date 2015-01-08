@@ -62,6 +62,8 @@ gulp.task('clean', del.bind(null, [DEST]));
 // 3rd party libraries
 gulp.task('vendor', function() {
   src.vendor = [
+    'bower_components/todomvc-common/base.{js,css}',
+    'bower_components/todomvc-common/bg.png'
   ];
   return merge(
     gulp.src(src.vendor)

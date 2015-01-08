@@ -1,13 +1,13 @@
 {
   "name": "mithril-starter-kit",
   "private": true,
-  "version": "0.0.0",
-  "description": "Mithril  Starter Kit",
+  "version": "0.1.0",
+  "description": "Mithril Starter Kit",
   "repository": "https://github.com/philtoms/mithril-starter-kit",
   "license": "MIT",
   "dependencies": {
     "bootstrap": "^3.3.1",
-    "mithril": "0.1.26",
+    "mithril": "^0.1.28",
     "mithril.elements": "^0.1.1",
     "object-assign": "^1.0.0"
   },
