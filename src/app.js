@@ -9,10 +9,13 @@
 'use strict';
 
 // global mithril.elements (alternatively, local require in each module)
-window.m = require('mithril.elements');
+window.m = require('mithril');
+window.me = require('mithril.elements');
 
 // experimental - will probably be npm'd in next version
-require('./components/mithril.bootstrap');
+require('./components/mithril.bootstrap');//.init({
+  //animate:require('melimate')
+//});
 
 // tab routes
 var ACCORDION1 = 0;
@@ -21,33 +24,34 @@ var MODAL = 2;
 var TODOS = 3;
 var XP = 4;
 
+// initialize the pages as singletons
+var accordion1  = require('./components/demos/accordion').instance({animate:true});
+var accordion2  = require('./components/demos/accordion').instance({toggle:true});
+var modal       = require('./components/demos/modal').instance();
+
 var app = function(tabNumber){
   return {
     controller: function() {
-      // initialize the pages as singletons
       this.todos       = require('./components/todos').instance();
-      this.accordion1  = require('./components/demos/accordion').instance();
-      this.accordion2  = require('./components/demos/accordion').instance({toggle:true});
-      this.modal       = require('./components/demos/modal').instance();
       this.experimental= require('./components/experimental/todosX').instance();
     },
     
     view: function(ctrl) {
       return [
-        m('jumbotron',[
+        me('jumbotron',[
           m('h1','Mithril Starter Kit'),
-          m('h3','with Mithrel.Elements v0.1.0')
+          m('h3','with Mithril.Elements v0.1.1')
         ]),
         m('h2.text-center', 'Click on any of the tab pills below'),
         m('h4.text-center','to reveal some custom elements in action'),
-        m('tabset', {state:{active:tabNumber, style:'pills'}}, 
+        me('tabset', {state:{active:tabNumber, style:'pills'}}, 
           // provide routng to the tabs to engage route history
           function(){ return [
-            m('tab', {state:{href:'/accordion-1'}}, ['Accordion 1', m(ctrl.accordion1)]),
-            m('tab', {state:{href:'/accordion-2'}}, ['Accordion 2', m(ctrl.accordion2)]),
-            m('tab', {state:{href:'/modal'}},       ['Modal dialog', m(ctrl.modal)]),
-            m('tab', {state:{href:'/todos'}},       ['Todo List', m(ctrl.todos)]),
-            m('tab', {state:{href:'/todos-xp'}},    ['Experimental', m(ctrl.experimental)])
+            me('tab', {state:{href:'/accordion-1'}}, ['Accordion 1', me(accordion1)]),
+            me('tab', {state:{href:'/accordion-2'}}, ['Accordion 2', me(accordion2)]),
+            me('tab', {state:{href:'/modal'}},       ['Modal dialog', me(modal)]),
+            me('tab', {state:{href:'/todos'}},       ['Todo List', me(ctrl.todos)]),
+            me('tab', {state:{href:'/todos-xp'}},    ['Experimental', me(ctrl.experimental)])
           ];
         })
       ];
@@ -63,5 +67,8 @@ m.route(document.getElementById('app'), '/', {
   '/todos': app(TODOS),
   '/todos/:filter': app(TODOS),
   '/todos-xp': app(XP),
-  '/todos-xp/:filter': app(XP)
+  '/todos-xp/:filter': app(XP),
+  '/...' : {controller:function(){
+    location.href='./404.html';
+  }}
 });

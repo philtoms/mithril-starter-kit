@@ -3,7 +3,7 @@
 
 var app = require('./app');
 
-module.exports = m.element('list-of-tasks',{
+module.exports = me.element('list-of-tasks',{
   controller:function(){
     this.completeAll = app.todos.completeAll;
     this.allCompleted = app.todos.allCompleted;
@@ -20,7 +20,7 @@ module.exports = m.element('list-of-tasks',{
       }),
       m('ul#todo-list', [
         app.todos.list.filter(app.isVisible).map(function (task) {
-          return m(template,{id:task.id,state:task});
+          return me(template,{id:task.id,state:task});
         })
       ])
     ]);

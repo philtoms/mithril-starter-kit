@@ -3,7 +3,7 @@
 
 var app = require('./app');
 
-module.exports = m.element('new-task',{
+module.exports = me.element('new-task',{
   controller:function(){
     
   	// Temp title placeholder

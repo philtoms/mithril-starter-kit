@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = m.element('occlusionScroller',{
+module.exports = me.element('occlusionScroller',{
 
   // Component controllers are instanced with optional data.
   // This data is part of the interface definition that users
@@ -66,7 +66,7 @@ module.exports = m.element('occlusionScroller',{
             // Mithril.Element can distinguish between compiled components 
             // and precompiled cells
             // 
-            return m(template, {id:idx+begin,state:item});
+            return me(template, {id:idx+begin,state:item});
           })
 
         ])

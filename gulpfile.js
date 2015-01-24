@@ -62,8 +62,8 @@ gulp.task('clean', del.bind(null, [DEST]));
 // 3rd party libraries
 gulp.task('vendor', function() {
   src.vendor = [
-  'bower_components/todomvc-common/base.{js,css}',
-  'bower_components/todomvc-common/bg.png'
+    'bower_components/todomvc-common/base.{js,css}',
+    'bower_components/todomvc-common/bg.png'
   ];
   return merge(
     gulp.src(src.vendor)
@@ -77,7 +77,8 @@ gulp.task('vendor', function() {
 gulp.task('assets', function() {
   src.assets = [
   'src/assets/**', 
-  'src/pages/index.html'
+  'src/pages/index.html',
+  'src/pages/404.html'
   ];
   return gulp.src(src.assets)
     .pipe($.changed(DEST))

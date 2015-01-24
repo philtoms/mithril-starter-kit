@@ -42,10 +42,14 @@ module.exports = function(release,watch) {
     ] : [],
 
     resolve: {
-      alias: {
-        "mithril": "../../node_modules/mithril/mithril.js",
-        "mithril.elements": "../node_modules/mithril.elements/mithril.elements.js"
-      },
+       modulesDirectories: [
+        'node_modules',
+        'bower_components'
+      ],
+      // alias: {
+      //   "mithril": "../../node_modules/mithril/mithril.js",
+      //   "mithril.elements": "../node_modules/mithril.elements/mithril.elements.js"
+      // },
       extensions: ['', '.webpack.js', '.web.js', '.js', '.msx']
     },
 
@@ -94,7 +98,7 @@ module.exports = function(release,watch) {
         camelcase: true,
 
         // any globals that should be suppressed
-        globals: ['m'],
+        globals: ['m','me'],
 
         // jshint errors are displayed by default as warnings
         // set emitErrors to true to display them as errors

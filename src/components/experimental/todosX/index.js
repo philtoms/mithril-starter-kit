@@ -9,7 +9,7 @@ var footer = require('./footer');
 // mithril.elements
 require('../occlusionScroller');
 
-module.exports = m.element('todosX-demo',{
+module.exports = me.element('todosX-demo',{
 
   controller: function() {
 
@@ -66,7 +66,7 @@ module.exports = m.element('todosX-demo',{
 
   view: function(ctrl) {
     return m('section#todoapp',[
-      m('$header#header', [
+      me('$header#header', [
         m('h1', 'too many todos'),
         m('input#new-todo[placeholder="What needs to be done?"]', { 
           onkeypress: app.watchInput(
@@ -82,8 +82,8 @@ module.exports = m.element('todosX-demo',{
             onclick: ctrl.completeAll,
             checked: ctrl.allCompleted()
         }),
-        m('occlusionScroller#todo-list', {state:{items:ctrl.list,page:6}},[
-          m('$todosX-item')
+        me('occlusionScroller#todo-list', {state:{items:ctrl.list,page:6}},[
+          me('$todosX-item')
         ])
       ]),
       app.todoCount === 0 ? '' : footer(ctrl)

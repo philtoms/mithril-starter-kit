@@ -2,7 +2,7 @@
 
 var app = require('./app');
 
-module.exports = m.element('todosX-item',{
+module.exports = me.element('todosX-item',{
 
   controller: function(task) {
 

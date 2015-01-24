@@ -12,7 +12,7 @@ require('./list-of-tasks');
 require('./task');
 require('./footer');
 
-module.exports = m.element('todos-demo', {
+module.exports = me.element('todos-demo', {
   controller: function(){
 
     // Todo collection
@@ -24,13 +24,13 @@ module.exports = m.element('todos-demo', {
   }, 
   view: function(){
     return m('#todoapp',[
-    	m('header',[
-    		m('new-task')
+    	me('header',[
+    		me('new-task')
     	]),
-  		m('list-of-tasks', [
-  			m('$task')
+  		me('list-of-tasks', [
+  			me('$task')
   		]),
-    	m('footer')
+    	me('footer')
     ]);
 	}
 });

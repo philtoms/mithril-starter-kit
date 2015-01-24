@@ -3,7 +3,7 @@
 
 var app = require('./app');
 
-module.exports = m.element('task',{
+module.exports = me.element('task',{
   controller:function(task){
 
     this.classes = function(){

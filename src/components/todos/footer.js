@@ -3,7 +3,7 @@
 
 var app = require('./app');
 
-module.exports = m.element('footer', {
+module.exports = me.element('footer', {
 
   controller:function(){
     
@@ -19,7 +19,7 @@ module.exports = m.element('footer', {
   	var amountCompleted = ctrl.amountCompleted();
   	var amountActive = app.todos.list.length - amountCompleted;
   
-  	return m('$footer#footer', [
+  	return me('$footer#footer', [
   		m('span#todo-count', [
   			m('strong', amountActive), ' item' + (amountActive !== 1 ? 's' : '') + ' left'
   		]),
