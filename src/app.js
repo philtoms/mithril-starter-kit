@@ -38,22 +38,22 @@ var app = function(tabNumber){
     
     view: function(ctrl) {
       return [
-        me('jumbotron',[
+        m('jumbotron',[
           m('h1','Mithril Starter Kit'),
-          m('h3','with Mithril.Elements v0.1.1')
+          m('h3','using Mithril custom tags')
         ]),
         m('h2.text-center', 'Click on any of the tab pills below'),
         m('h4.text-center','to reveal some custom elements in action'),
-        me('tabset', {state:{active:tabNumber, style:'pills'}}, 
+        m('tabset', {active:tabNumber, style:'pills'}, 
           // provide routng to the tabs to engage route history
-          function(){ return [
-            me('tab', {state:{href:'/accordion-1'}}, ['Accordion 1', me(accordion1)]),
-            me('tab', {state:{href:'/accordion-2'}}, ['Accordion 2', me(accordion2)]),
-            me('tab', {state:{href:'/modal'}},       ['Modal dialog', me(modal)]),
-            me('tab', {state:{href:'/todos'}},       ['Todo List', me(ctrl.todos)]),
-            me('tab', {state:{href:'/todos-xp'}},    ['Experimental', me(ctrl.experimental)])
-          ];
-        })
+          [
+            m('tab', {href:'/accordion-1'}, ['Accordion 1', me(accordion1)]),
+            m('tab', {href:'/accordion-2'}, ['Accordion 2', me(accordion2)]),
+            m('tab', {href:'/modal'},       ['Modal dialog', me(modal)]),
+            m('tab', {href:'/todos'},       ['Todo List', me(ctrl.todos)]),
+            m('tab', {href:'/todos-xp'},    ['Experimental', me(ctrl.experimental)])
+          ]
+        )
       ];
     }
   };
