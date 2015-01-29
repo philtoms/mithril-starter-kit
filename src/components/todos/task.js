@@ -3,8 +3,9 @@
 
 var app = require('./app');
 
-module.exports = me.element('task',{
-  controller:function(task){
+module.exports = {
+  controller:function(){
+    var task = this.attrs.task;
 
     this.classes = function(){
 			var classes = '';
@@ -66,5 +67,5 @@ module.exports = me.element('task',{
   		})
     ]);
   }
-});
+};
 

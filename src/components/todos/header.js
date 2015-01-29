@@ -1,11 +1,11 @@
 
 'use strict';
 
-module.exports = me.element('header',{
+module.exports = {
   view: function(ctrl,content){
-    return me('$header#header', [
+    return m('header#header', [
       m('h1', 'todos'),
       content
     ]);
   }
-});
+};

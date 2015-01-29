@@ -1,18 +1,18 @@
 'use strict';
 
-module.exports = me.element('accordion-demo', {
-	controller: function(options) {
-		this.options=options||{};
+m.tags['accordion-demo'] = {
+	controller: function() {
+		this.options=this.attrs||{};
 	},
   view: function(ctrl, content) {
-  	return [
+  	return m('.accordion-demo',[
 	  	m('h3', ctrl.options.toggle? 'Accordion with toggle state':'Single item accordion'),
-	  	me('accordion', {state:ctrl.options}, [
+	  	m('accordion', ctrl.options, [
 	      m('.item', ['Title 1','item line one']),
 	      m('.item', ['Title 2','item line two']),
 	      m('.item', ['Title 3','item line three']),
 	      m('.item', ['Title 4','item line four'])
 	    ])
-	  ];
+	  ]);
 	}
-});
+};

@@ -107,7 +107,7 @@ module.exports = function(release,watch) {
         // jshint to not interrupt the compilation
         // if you want any file with jshint errors to fail
         // set failOnHint to true
-        failOnHint: true,
+        failOnHint: false,
 
         // custom reporter function
         reporter: require('./jshintReporter.js')

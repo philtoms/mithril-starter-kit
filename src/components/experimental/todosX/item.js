@@ -2,11 +2,13 @@
 
 var app = require('./app');
 
-module.exports = me.element('todosX-item',{
+m.tags['todosX-item'] = {
 
-  controller: function(task) {
+  controller: function() {
 
+    var task = this.attrs.item;
     var state = {
+      attrs:this.attrs,
       editing: false,
       task: task,
       setClass: function() {
@@ -63,4 +65,4 @@ module.exports = me.element('todosX-item',{
       })
     ]);
   }
-});
+};

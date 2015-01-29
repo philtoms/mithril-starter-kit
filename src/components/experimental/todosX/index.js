@@ -6,10 +6,9 @@ var model = require('./model');
 var item = require('./item');
 var footer = require('./footer');
 
-// mithril.elements
 require('../occlusionScroller');
 
-module.exports = me.element('todosX-demo',{
+m.tags['todosX-demo'] = {
 
   controller: function() {
 
@@ -66,7 +65,7 @@ module.exports = me.element('todosX-demo',{
 
   view: function(ctrl) {
     return m('section#todoapp',[
-      me('$header#header', [
+      m('header#header', [
         m('h1', 'too many todos'),
         m('input#new-todo[placeholder="What needs to be done?"]', { 
           onkeypress: app.watchInput(
@@ -82,11 +81,11 @@ module.exports = me.element('todosX-demo',{
             onclick: ctrl.completeAll,
             checked: ctrl.allCompleted()
         }),
-        me('occlusionScroller#todo-list', {state:{items:ctrl.list,page:6}},[
-          me('$todosX-item')
+        m('occlusionScroller#todo-list', {items:ctrl.list,page:6,step:true},[
+          m('todosX-item')
         ])
       ]),
       app.todoCount === 0 ? '' : footer(ctrl)
     ]);
   }
-});
+};

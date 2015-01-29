@@ -3,12 +3,13 @@
 
 var app = require('./app');
 
-module.exports = me.element('list-of-tasks',{
+module.exports = {
   controller:function(){
     this.completeAll = app.todos.completeAll;
     this.allCompleted = app.todos.allCompleted;
   },
-  view: function(ctrl,template){
+  view: function(ctrl){
+    var template = ctrl.children[0];
     return m('section#main', {
         style: {
           display: app.todos.list.length ? '' : 'none'
@@ -20,9 +21,9 @@ module.exports = me.element('list-of-tasks',{
       }),
       m('ul#todo-list', [
         app.todos.list.filter(app.isVisible).map(function (task) {
-          return me(template,{id:task.id,state:task});
+          return m(template.tag,{id:task.id,task:task});
         })
       ])
     ]);
   }
-});
+};

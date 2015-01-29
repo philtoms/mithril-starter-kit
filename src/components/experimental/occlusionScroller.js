@@ -1,6 +1,22 @@
 'use strict';
 
-module.exports = me.element('occlusionScroller',{
+function merge(obj1,obj2,filter){
+  var classAttrName = 'class' in obj1 ? 'class' : 'className';
+  var classes = obj1[classAttrName]|| '';
+  Object.keys(obj2).forEach(function(k){
+    if (k.indexOf('class')>=0){
+      classes += ' ' + obj2[k];
+    } else if ((filter||' ').indexOf(k)<0) {
+      obj1[k] = obj2[k];
+    }
+  }); 
+  if (classes && classes.trim()) {
+    obj1[classAttrName]=classes.trim();
+  }
+  return obj1;
+}
+
+m.tags.occlusionScroller = {
 
   // Component controllers are instanced with optional data.
   // This data is part of the interface definition that users
@@ -8,10 +24,10 @@ module.exports = me.element('occlusionScroller',{
   // the data must contain:
   //  items:  function returning a set of scrollable items 
   //  page:   the number of line to display on a page
-  controller: function(model) {
+  controller: function(data) {
 
-    this.items = model.items;
-    this.page = model.page;
+    this.items = data.attrs.items;
+    this.page = data.attrs.page;
     this.itemHeight=58;
     var scroller={scrollTop:0};
 
@@ -30,47 +46,43 @@ module.exports = me.element('occlusionScroller',{
 
   },
 
-  // Component views accept a controller and an optional inner argument.
-  // 
-  //  
-  view: function(ctrl, template) {
+  view: function(ctrl) {
 
-    // fetch the item list into local scope. Typically this
-    // controller method will be bound to the component controller
-    // throuth the model interface and will return a reference to an 
-    // external list.
-    var items = typeof ctrl.items === 'function'? ctrl.items():ctrl.items;
+    var template = ctrl.children[0];
 
     // calculate the begin and end indicies of the scrollable section
-    var begin = ctrl.pageY() / ctrl.itemHeight | 0;
+    var pageY = ctrl.pageY(), begin = pageY / ctrl.itemHeight | 0;
 
     // Add 2 so that the top and bottom of the page are filled with
     // next/prev item, not just whitespace if item not in full view
     var end = begin + ctrl.page + 2;
 
-    var offset = ctrl.pageY % ctrl.itemHeight;
+    // fetch the item list into local scope. Typically this
+    // controller method will be bound to the component controller
+    // through the model interface and will return a reference to an 
+    // external list.
+    var items = (typeof ctrl.items === 'function'? ctrl.items():ctrl.items);
+    var page = items.slice(begin, end);
+
+    var offset = ctrl.attrs.step? 0: pageY % ctrl.itemHeight;
     var height = Math.min(items.length,ctrl.page) * ctrl.itemHeight + 'px';
 
-    // add our own identity and style to the element. Note that any values
-    // created here may be overridden by the component instance
-    return m('.occlusionScroller', {style:{overflow:'scroll', height: height},config:ctrl.setup}, [
+    // add our own identity and style to the element. Note that any instance
+    // attributes must be preserved
+    return m('.occlusionScroller', merge({style:{overflow:'scroll', height: height},config:ctrl.setup},ctrl.attrs,'items'), [
       
       m('.list', {style: {height: items.length * ctrl.itemHeight + 'px', position: 'relative', top: -offset + 'px'}}, [
         m('ul', {style: {paddingTop: ctrl.pageY() + 'px'}}, [
 
           // merge the page content into the flow with a standard map
-          items.slice(begin, end).map(function(item, idx) {
+          page.map(function(item, idx) {
 
-            // register the child template. Notice that we 
-            // are passing it as an object and not as a string tagname.
-            // Mithril.Element can distinguish between compiled components 
-            // and precompiled cells
-            // 
-            return me(template, {id:idx+begin,state:item});
+            // create the child from the template and give it a unique key.
+            return m('div',{key:begin+idx}, [m(template.tag,{item:item})]);
           })
 
         ])
       ])
     ]);  
   }
-});
+};

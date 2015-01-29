@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = me.element('modal-demo', {
+m.tags['modal-demo'] = {
   controller: function() {
     // provide a boolean trigger for the dialog to
     // read open / closed state
@@ -11,9 +11,9 @@ module.exports = me.element('modal-demo', {
     };
   },
   view: function(ctrl, content) {
-  	return [
+  	return m('.modal-demo', [
       m('button.btn.btn-primary.btn-lg[type="button"]', {onclick:ctrl.trigger.bind(ctrl,true)}, 'Launch demo modal'),
-      me('modal', {trigger:ctrl.trigger}, function(){ return {
+      m('modal', {trigger:ctrl.trigger}, function(){ return {
         title:'A Modal Title',
         body: ['Another fine example...',
           m('p',' of a work in progress')
@@ -21,6 +21,6 @@ module.exports = me.element('modal-demo', {
         cancel: 'Cancel',
         ok: m('.save', {onclick:ctrl.save.bind(ctrl)}, 'Save Changes')
       };
-    })];
+    })]);
   }
-});
+};

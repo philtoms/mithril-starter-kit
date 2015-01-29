@@ -8,9 +8,7 @@
 
 'use strict';
 
-// global mithril.elements (alternatively, local require in each module)
-window.m = require('mithril');
-window.me = require('mithril.elements');
+window.m = require('./mithril');
 
 // experimental - will probably be npm'd in next version
 require('./components/mithril.bootstrap');//.init({
@@ -24,16 +22,15 @@ var MODAL = 2;
 var TODOS = 3;
 var XP = 4;
 
-// initialize the pages as singletons
-var accordion1  = require('./components/demos/accordion').instance({animate:true});
-var accordion2  = require('./components/demos/accordion').instance({toggle:true});
-var modal       = require('./components/demos/modal').instance();
+require('./components/demos/accordion');
+require('./components/demos/accordion');
+require('./components/demos/modal');
+require('./components/todos');
+require('./components/experimental/todosX');
 
 var app = function(tabNumber){
   return {
     controller: function() {
-      this.todos       = require('./components/todos').instance();
-      this.experimental= require('./components/experimental/todosX').instance();
     },
     
     view: function(ctrl) {
@@ -47,11 +44,11 @@ var app = function(tabNumber){
         m('tabset', {active:tabNumber, style:'pills'}, 
           // provide routng to the tabs to engage route history
           [
-            m('tab', {href:'/accordion-1'}, ['Accordion 1', me(accordion1)]),
-            m('tab', {href:'/accordion-2'}, ['Accordion 2', me(accordion2)]),
-            m('tab', {href:'/modal'},       ['Modal dialog', me(modal)]),
-            m('tab', {href:'/todos'},       ['Todo List', me(ctrl.todos)]),
-            m('tab', {href:'/todos-xp'},    ['Experimental', me(ctrl.experimental)])
+            m('tab', {href:'/accordion-1'}, ['Accordion 1', m('accordion-demo',{animate:true})]),
+            m('tab', {href:'/accordion-2'}, ['Accordion 2', m('accordion-demo',{toggle:true})]),
+            m('tab', {href:'/modal'},       ['Modal dialog', m('modal-demo')]),
+            m('tab', {href:'/todos'},       ['Todo List', m('todos-demo')]),
+            m('tab', {href:'/todos-xp'},    ['Experimental', m('todosX-demo')])
           ]
         )
       ];

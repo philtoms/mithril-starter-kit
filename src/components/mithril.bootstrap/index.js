@@ -16,21 +16,10 @@ var scrollbarWidth = (function () {
 })();
 
 m.tags.accordion = {
-  controller: function(options) {
+  controller: function(data) {
     var opening=[],animating=[];
 
-    options = options || {};
-
-    this.animate = function() {
-      if (options.animate){
-        var a1 = animating.unshift();
-        var dir = this.isOpen(a1.id);
-        //animate(a1.el,options.animate,dir);
-        if (animating.length){
-          //animate(animating.unshift().el,options.animate,1);
-        }
-      }
-    };
+    var options = data.attrs;
 
     this.toggle = function(id){
       if (options.toggle){
@@ -49,10 +38,8 @@ m.tags.accordion = {
       var isOpen = ctrl.isOpen(id);
       var title=line.children[0],content=line.children[1];
       return [
-        me(line,{
-          class:'panel-heading',
-          onclick:ctrl.toggle.bind(ctrl,id),
-          config:ctrl.animate.bind(ctrl,id)
+        m('.panel-heading',{
+          onclick:ctrl.toggle.bind(ctrl,id)
         },
         m('.panel-title',title)),
         m('div.panel-body',{style:'display:'+(isOpen? 'block':'none')},content)
