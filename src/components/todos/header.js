@@ -2,10 +2,10 @@
 'use strict';
 
 module.exports = {
-  view: function(ctrl,content){
+  view: function(ctrl){
     return m('header#header', [
       m('h1', 'todos'),
-      content
+      ctrl.children[0]
     ]);
   }
 };
