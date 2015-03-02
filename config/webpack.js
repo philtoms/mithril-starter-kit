@@ -98,7 +98,7 @@ module.exports = function(release,watch) {
         camelcase: true,
 
         // any globals that should be suppressed
-        globals: ['m','me'],
+        globals: ['m'],
 
         // jshint errors are displayed by default as warnings
         // set emitErrors to true to display them as errors

@@ -6,13 +6,13 @@
 var app = require('./app');
 var model = require('./model');
 
-m.tags['td-header'] = require('./header');
-m.tags['td-new-task'] = require('./new-task');
-m.tags['td-list-of-tasks'] = require('./list-of-tasks');
-m.tags['td-task'] = require('./task');
-m.tags['td-footer'] = require('./footer');
+var header = require('./header');
+var newTask = require('./new-task');
+var listOfTasks = require('./list-of-tasks');
+var task = require('./task');
+var footer = require('./footer');
 
-m.tags['todos-demo'] = {
+module.exports = {
   controller: function(){
 
     // Todo collection
@@ -23,14 +23,14 @@ m.tags['todos-demo'] = {
     
   }, 
   view: function(){
-    return m('#todoapp',[
-    	m('td-header',[
-    		m('td-new-task')
+    return m('#todoapp',{key:'todos'},[
+    	m(header,[
+    		m(newTask)
     	]),
-  		m('td-list-of-tasks', [
-  			m('td-task')
+  		m(listOfTasks, [
+  			task
   		]),
-    	m('td-footer')
+    	m(footer)
     ]);
 	}
 };

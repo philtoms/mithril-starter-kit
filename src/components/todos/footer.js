@@ -14,7 +14,7 @@ module.exports = {
   
   view: function(ctrl){
     if (app.todos.list.length===0){
-      return m('div');
+      return '';
     }
   	var amountCompleted = ctrl.amountCompleted();
   	var amountActive = app.todos.list.length - amountCompleted;

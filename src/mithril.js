@@ -36,10 +36,11 @@ var m = (function app(window, undefined) {
     var hasAttrs = args[1] != null && type.call(args[1]) === OBJECT && !("tag" in args[1]) && !("subtree" in args[1]);
     var attrs = hasAttrs ? args[1] : {};
     var classAttrName = "class" in attrs ? "class" : "className";
-    var cell = {tag: "div", attrs: {}};
+    var cell = {tag: "div", attrs: {}, module: args[0].view && args[0]};
+    var tag = cell.module && 'div' || args[0];
     var match, classes = [];
-    if (type.call(args[0]) != STRING) throw new Error("selector in m(selector, attrs, children) should be a string")
-    while (match = parser.exec(args[0])) {
+    if (type.call(tag) != STRING) throw new Error("selector in m(selector, attrs, children) should be a string or a component")
+    while (match = parser.exec(tag)) {
       if (match[1] === "" && match[2]) cell.tag = match[2];
       else if (match[1] === "#") cell.attrs.id = match[2];
       else if (match[1] === ".") classes.push(match[2]);
@@ -50,13 +51,12 @@ var m = (function app(window, undefined) {
     }
     if (classes.length > 0) cell.attrs[classAttrName] = classes.join(" ");
 
-
-    var children = hasAttrs ? args[2] : args[1];
-    if (type.call(children) === ARRAY) {
-      cell.children = children
+    var children = hasAttrs ? args.slice(2) : args.slice(1);
+    if (children.length === 1 && type.call(children[0]) === ARRAY) {
+      cell.children = children[0]
     }
     else {
-      cell.children = hasAttrs ? args.slice(2) : args.slice(1)
+      cell.children = children
     }
 
     for (var attrName in attrs) {
@@ -117,9 +117,10 @@ var m = (function app(window, undefined) {
         if (type.call(data[i]) === ARRAY) {
           data = data.concat.apply([], data);
           i-- //check current index again and flatten until there are no more nested arrays at that index
+          len = data.length
         }
       }
-      
+
       var nodes = [], intact = cached.length === data.length, subArrayCount = 0;
 
       //keys algorithm: sort elements without recreating them if keys are present
@@ -158,7 +159,7 @@ var m = (function app(window, undefined) {
                   action: MOVE,
                   index: i,
                   from: existing[key].index,
-                  element: parentElement.childNodes[existing[key].index] || $document.createElement("div")
+                  element: cached.nodes[existing[key].index] || $document.createElement("div")
                 }
               }
               else unkeyed.push({index: i, element: parentElement.childNodes[i] || $document.createElement("div")})
@@ -209,7 +210,7 @@ var m = (function app(window, undefined) {
           //fix offset of next element if item was a trusted string w/ more than one html element
           //the first clause in the regexp matches elements
           //the second clause (after the pipe) matches text nodes
-          subArrayCount += (item.match(/<[^\/]|\>\s*[^<]/g) || []).length
+          subArrayCount += (item.match(/<[^\/]|\>\s*[^<]|&/g) || []).length
         }
         else subArrayCount += type.call(item) === ARRAY ? item.length : 1;
         cached[cacheCount++] = item
@@ -231,30 +232,15 @@ var m = (function app(window, undefined) {
       }
     }
     else if (data != null && dataType === OBJECT) {
-      var module = m.tags[data.tag], controller = cached.controller
-      if (module) {
-        if (!controller) {
-          var constructor = module.controller || m.prop()
-          for (var prop in constructor.prototype) data[prop] = constructor.prototype[prop]
-          controller = constructor.call(data, data) || data
-          if (!controller.attrs) controller.attrs = {}
-        }
-        controller.tag = data.tag
-        for (var attr in data.attrs) controller.attrs[attr] = data.attrs[attr]
-        controller.children = data.children
-        data = module.view(controller)
-        if (!data.tag) throw new Error(module.view.toString() + "\n\nThis template must return a virtual element, not an array, string, etc.");
-      }
       if (!data.attrs) data.attrs = {};
       if (!cached.attrs) cached.attrs = {};
 
       var dataAttrKeys = Object.keys(data.attrs)
       var hasKeys = dataAttrKeys.length > ("key" in data.attrs ? 1 : 0)
       //if an element is different enough from the one in cache, recreate it
-      if (data.tag != cached.tag || dataAttrKeys.join() != Object.keys(cached.attrs).join() || data.attrs.id != cached.attrs.id || data.attrs.key != cached.attrs.key) {
+      if (data.tag != cached.tag || dataAttrKeys.join() != Object.keys(cached.attrs).join() || data.attrs.id != cached.attrs.id) {
         if (cached.nodes.length) clear(cached.nodes);
         if (cached.configContext && typeof cached.configContext.onunload === FUNCTION) cached.configContext.onunload()
-        if (cached.controller && typeof cached.controller.onunload === FUNCTION) cached.controller.onunload({preventDefault: function() {}})
       }
       if (type.call(data.tag) != STRING) return;
 
@@ -262,7 +248,6 @@ var m = (function app(window, undefined) {
       if (data.attrs.xmlns) namespace = data.attrs.xmlns;
       else if (data.tag === "svg") namespace = "http://www.w3.org/2000/svg";
       else if (data.tag === "math") namespace = "http://www.w3.org/1998/Math/MathML";
-      
       if (isNew) {
         if (data.attrs.is) node = namespace === undefined ? $document.createElement(data.tag, data.attrs.is) : $document.createElementNS(namespace, data.tag, data.attrs.is);
         else node = namespace === undefined ? $document.createElement(data.tag) : $document.createElementNS(namespace, data.tag);
@@ -275,8 +260,6 @@ var m = (function app(window, undefined) {
             data.children,
           nodes: [node]
         };
-        if (module) cached.controller = controller
-        
         if (cached.children && !cached.children.nodes) cached.children.nodes = [];
         //edge case: setting value on <select> doesn't work before children exist, so set it again after children have been created
         if (data.tag === "select" && data.attrs.value) setAttributes(node, data.tag, {value: data.attrs.value}, {}, namespace);
@@ -409,7 +392,6 @@ var m = (function app(window, undefined) {
   }
   function unload(cached) {
     if (cached.configContext && typeof cached.configContext.onunload === FUNCTION) cached.configContext.onunload();
-    if (cached.controller && typeof cached.controller.onunload === FUNCTION) cached.controller.onunload({preventDefault: function() {}});
     if (cached.children) {
       if (type.call(cached.children) === ARRAY) {
         for (var i = 0, child; child = cached.children[i]; i++) unload(child)
@@ -465,7 +447,6 @@ var m = (function app(window, undefined) {
     childNodes: []
   };
   var nodeCache = [], cellCache = {};
-  m.tags = {}
   m.render = function(root, cell, forceRecreation) {
     var configs = [];
     if (!root) throw new Error("Please ensure the DOM element exists before rendering a template into it.");
@@ -475,12 +456,67 @@ var m = (function app(window, undefined) {
     if (isDocumentRoot && cell.tag != "html") cell = {tag: "html", attrs: {}, children: cell};
     if (cellCache[id] === undefined) clear(node.childNodes);
     if (forceRecreation === true) reset(root);
-    cellCache[id] = build(node, null, undefined, undefined, cell, cellCache[id], false, 0, null, undefined, configs);
+    cellCache[id] = build(node, null, undefined, undefined, compose(cell,0,0), cellCache[id], false, 0, null, undefined, configs);
     for (var i = 0, len = configs.length; i < len; i++) configs[i]()
   };
   function getCellCacheKey(element) {
     var index = nodeCache.indexOf(element);
     return index < 0 ? nodeCache.push(element) - 1 : index
+  }
+  /*
+   * compose a digraph of the current v-dom
+   * @param {cell} new graph input
+   * @param {d} node depth
+   * @param {p} node position at d
+   * @param {ctx} context at d:p
+   */
+  function compose(cell,d,p,ctx) {
+    if (!cell) return blank();
+    if (type.call(cell) === ARRAY) {
+      return cell.map(function(c,i){
+        return compose(c,d+''+p,i,ctx);
+      });
+    }
+    if (!cell.tag) return cell;
+    var data = cell, attrs = cell.attrs, children = cell.children;
+
+    // calculate position for new node and check if it already exists.
+    // Note that model entity id takes precidence over node position - 
+    //  handles model state change at a specific node position, eg:
+    //    data list changes
+    var id = (attrs.id || attrs.key)? 'id' + (attrs.id || '') + (attrs.key || '') : d + cell.tag + p + (Object.keys(attrs).join()||'');
+    var node = graph[id];
+
+    // composition: [module -> ctrl] -> children -> [view] -> cell
+    if (cell.module) {
+      node = node || new (cell.module.controller || function(){})(ctx);
+    }
+    for (var i=0, l=children.length; i<l; i++) {
+      data.children[i] = compose(children[i], id, i, node);
+    }
+    if (cell.module) {
+      node.inner = children.length>1? children:children[0];
+      node.attrs = cell.attrs;
+      if (node.onunload) unloads.push(node.onunload);
+      data = compose(cell.module.view(node),d,p,ctx);
+      if (data.attrs) {
+        var classAttrName = 'class' in data.attrs ? 'class' : 'className';
+        var classes = data.attrs[classAttrName]|| '';
+        Object.keys(attrs).forEach(function(k){
+          if (k.indexOf('class')>=0){
+            classes += ' ' + attrs[k];
+          } else {
+            data.attrs[k] = attrs[k];
+          }
+        });
+        if (classes && classes.trim()) {
+          data.attrs[classAttrName]=classes.trim();
+        } 
+      }
+    }
+
+    if (node) graph[id] =  node; 
+    return data;
   }
 
   m.trust = function(value) {
@@ -511,7 +547,7 @@ var m = (function app(window, undefined) {
     return gettersetter(store)
   };
 
-  var roots = [], modules = [], controllers = [], lastRedrawId = null, lastRedrawCallTime = 0, computePostRedrawHook = null, prevented = false, topModule;
+  var roots = [], modules = [], controllers = [], graph={}, unloads = [], lastRedrawId = null, lastRedrawCallTime = 0, computePostRedrawHook = null, prevented = false, topModule;
   var FRAME_BUDGET = 16; //60 frames per second = 1 call per 16 ms
   m.module = function(root, module) {
     if (!root) throw new Error("Please ensure the DOM element exists before rendering a template into it.");
@@ -526,11 +562,15 @@ var m = (function app(window, undefined) {
     }
     if (!isPrevented) {
       m.redraw.strategy("all");
+      for (var i=0,l=unloads.length;i<l;i++){
+        unloads[i]();
+      }
+      graph={};
+      unloads.length=0;
       m.startComputation();
       roots[index] = root;
       var currentModule = topModule = module = module || {};
-      var constructor = module.controller || m.prop()
-      var controller = new constructor;
+      var controller = new (module.controller || function() {});
       //controllers may call m.module recursively (via m.route redirects, for example)
       //this conditional ensures only the last recursive m.module call is applied
       if (currentModule === topModule) {
@@ -563,7 +603,7 @@ var m = (function app(window, undefined) {
     var forceRedraw = m.redraw.strategy() === "all";
     for (var i = 0, root; root = roots[i]; i++) {
       if (controllers[i]) {
-        m.render(root, (modules[i].view || blank)(controllers[i]), forceRedraw)
+        m.render(root, modules[i].view ? modules[i].view(controllers[i]) : blank(), forceRedraw)
       }
     }
     //after rendering within a routed context, we need to scroll back to the top, and fetch the document title for history.pushState
@@ -615,24 +655,33 @@ var m = (function app(window, undefined) {
       };
       var listener = m.route.mode === "hash" ? "onhashchange" : "onpopstate";
       window[listener] = function() {
-        if (currentRoute != normalizeRoute($location[m.route.mode])) {
-          redirect($location[m.route.mode])
+        var path = $location[m.route.mode]
+        if (m.route.mode === "pathname") path += $location.search
+        if (currentRoute != normalizeRoute(path)) {
+          redirect(path)
         }
       };
       computePostRedrawHook = setScroll;
       window[listener]()
     }
     //config: m.route
-    else if (arguments[0].addEventListener) {
+    else if (arguments[0].addEventListener || arguments[0].attachEvent) {
       var element = arguments[0];
       var isInitialized = arguments[1];
       var context = arguments[2];
       element.href = (m.route.mode !== 'pathname' ? $location.pathname : '') + modes[m.route.mode] + this.attrs.href;
-      element.removeEventListener("click", routeUnobtrusive);
-      element.addEventListener("click", routeUnobtrusive)
+      if (element.addEventListener) {
+        element.removeEventListener("click", routeUnobtrusive);
+        element.addEventListener("click", routeUnobtrusive)
+      }
+      else {
+        element.detachEvent("onclick", routeUnobtrusive);
+        element.attachEvent("onclick", routeUnobtrusive)
+      }
     }
     //m.route(route, params)
     else if (type.call(arguments[0]) === STRING) {
+      var oldRoute = currentRoute;
       currentRoute = arguments[0];
       var args = arguments[1] || {}
       var queryIndex = currentRoute.indexOf("?")
@@ -642,7 +691,7 @@ var m = (function app(window, undefined) {
       var currentPath = queryIndex > -1 ? currentRoute.slice(0, queryIndex) : currentRoute
       if (querystring) currentRoute = currentPath + (currentPath.indexOf("?") === -1 ? "?" : "&") + querystring;
 
-      var shouldReplaceHistoryEntry = (arguments.length === 3 ? arguments[2] : arguments[1]) === true;
+      var shouldReplaceHistoryEntry = (arguments.length === 3 ? arguments[2] : arguments[1]) === true || oldRoute === arguments[0];
 
       if (window.history.pushState) {
         computePostRedrawHook = function() {
@@ -651,7 +700,10 @@ var m = (function app(window, undefined) {
         };
         redirect(modes[m.route.mode] + currentRoute)
       }
-      else $location[m.route.mode] = currentRoute
+      else {
+        $location[m.route.mode] = currentRoute
+        redirect(modes[m.route.mode] + currentRoute)
+      }
     }
   };
   m.route.param = function(key) {
@@ -659,7 +711,9 @@ var m = (function app(window, undefined) {
     return routeParams[key]
   };
   m.route.mode = "search";
-  function normalizeRoute(route) {return route.slice(modes[m.route.mode].length)}
+  function normalizeRoute(route) {
+    return route.slice(modes[m.route.mode].length)
+  }
   function routeByValue(root, router, path) {
     routeParams = {};
 
@@ -667,6 +721,15 @@ var m = (function app(window, undefined) {
     if (queryStart !== -1) {
       routeParams = parseQueryString(path.substr(queryStart + 1, path.length));
       path = path.substr(0, queryStart)
+    }
+
+    // Get all routes and check if there's
+    // an exact match for the current path
+    var keys = Object.keys(router);
+    var index = keys.indexOf(path);
+    if(index !== -1){
+      m.module(root, router[keys [index]]);
+      return true;
     }
 
     for (var route in router) {
@@ -693,8 +756,9 @@ var m = (function app(window, undefined) {
     if (e.ctrlKey || e.metaKey || e.which === 2) return;
     if (e.preventDefault) e.preventDefault();
     else e.returnValue = false;
-    var currentTarget = e.currentTarget || this;
+    var currentTarget = e.currentTarget || e.srcElement;
     var args = m.route.mode === "pathname" && currentTarget.search ? parseQueryString(currentTarget.search.slice(1)) : {};
+    while (currentTarget && currentTarget.nodeName.toUpperCase() != "A") currentTarget = currentTarget.parentNode
     m.route(currentTarget[m.route.mode].slice(modes[m.route.mode].length), args)
   }
   function setScroll() {
@@ -705,10 +769,17 @@ var m = (function app(window, undefined) {
     var str = [];
     for(var prop in object) {
       var key = prefix ? prefix + "[" + prop + "]" : prop, value = object[prop];
-      str.push(value != null && type.call(value) === OBJECT ? buildQueryString(value, key) : encodeURIComponent(key) + "=" + encodeURIComponent(value))
+      var valueType = type.call(value)
+      var pair = value != null && (valueType === OBJECT) ?
+        buildQueryString(value, key) :
+        valueType === ARRAY ?
+          value.map(function(item) {return encodeURIComponent(key + "[]") + "=" + encodeURIComponent(item)}).join("&") :
+          encodeURIComponent(key) + "=" + encodeURIComponent(value)
+      str.push(pair)
     }
     return str.join("&")
   }
+  
   function parseQueryString(str) {
     var pairs = str.split("&"), params = {};
     for (var i = 0, len = pairs.length; i < len; i++) {
@@ -732,7 +803,8 @@ var m = (function app(window, undefined) {
     var prop = m.prop();
     promise.then(prop);
     prop.then = function(resolve, reject) {
-      return propify(promise.then(resolve, reject))
+      promise = promise.then(resolve, reject).then(prop);
+      return prop;
     };
     return prop
   }
@@ -998,7 +1070,7 @@ var m = (function app(window, undefined) {
       try {
         e = e || event;
         var unwrap = (e.type === "load" ? xhrOptions.unwrapSuccess : xhrOptions.unwrapError) || identity;
-        var response = unwrap(deserialize(extract(e.target, xhrOptions)));
+        var response = unwrap(deserialize(extract(e.target, xhrOptions)), e.target);
         if (e.type === "load") {
           if (type.call(response) === ARRAY && xhrOptions.type) {
             for (var i = 0; i < response.length; i++) response[i] = new xhrOptions.type(response[i])

@@ -9,7 +9,6 @@ module.exports = {
     this.allCompleted = app.todos.allCompleted;
   },
   view: function(ctrl){
-    var template = ctrl.children[0];
     return m('section#main', {
         style: {
           display: app.todos.list.length ? '' : 'none'
@@ -21,7 +20,7 @@ module.exports = {
       }),
       m('ul#todo-list', [
         app.todos.list.filter(app.isVisible).map(function (task) {
-          return m(template.tag,{id:task.id,task:task});
+          return m(ctrl.inner(task),{id:task.id});
         })
       ])
     ]);
