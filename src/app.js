@@ -9,6 +9,7 @@
 'use strict';
 
 // global mithril (alternatively, local require in each module)
+//window.m = require('mithril.elements');
 window.m = require('./mithril');
 
 // experimental - will probably be npm'd in next version

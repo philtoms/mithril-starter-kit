@@ -62,6 +62,8 @@ module.exports = {
       }
       return filtered;
     }.bind(this);
+    // ensure model is updated before the view phase
+    this.list();
   },
 
   view: function(ctrl) {
