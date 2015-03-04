@@ -456,8 +456,11 @@ var m = (function app(window, undefined) {
     if (isDocumentRoot && cell.tag != "html") cell = {tag: "html", attrs: {}, children: cell};
     if (cellCache[id] === undefined) clear(node.childNodes);
     if (forceRecreation === true) reset(root);
-    cellCache[id] = build(node, null, undefined, undefined, compose(cell,0,0), cellCache[id], false, 0, null, undefined, configs);
-    for (var i = 0, len = configs.length; i < len; i++) configs[i]()
+    cell = compose(cell,0,0);
+    if (pendingRequests === 0) {
+      cellCache[id] = build(node, null, undefined, undefined, cell, cellCache[id], false, 0, null, undefined, configs);
+      for (var i = 0, len = configs.length; i < len; i++) configs[i]()
+    }
   };
   function getCellCacheKey(element) {
     var index = nodeCache.indexOf(element);
@@ -486,10 +489,13 @@ var m = (function app(window, undefined) {
     //    data list changes
     var id = (attrs.id || attrs.key)? 'id' + (attrs.id || '') + (attrs.key || '') : d + cell.tag + p + (Object.keys(attrs).join()||'');
     var node = graph[id];
+    var isNew = !node;
 
     // composition: [module -> ctrl] -> children -> [view] -> cell
     if (cell.module) {
       node = node || new (cell.module.controller || function(){})(ctx);
+      if (isNew && node.onunload) unloads.push(node.onunload);
+      graph[id] =  node; 
     }
     for (var i=0, l=children.length; i<l; i++) {
       data.children[i] = compose(children[i], id, i, node);
@@ -497,7 +503,6 @@ var m = (function app(window, undefined) {
     if (cell.module) {
       node.inner = children.length>1? children:children[0];
       node.attrs = cell.attrs;
-      if (node.onunload) unloads.push(node.onunload);
       data = compose(cell.module.view(node),d,p,ctx);
       if (data.attrs) {
         var classAttrName = 'class' in data.attrs ? 'class' : 'className';
@@ -515,9 +520,10 @@ var m = (function app(window, undefined) {
       }
     }
 
-    if (node) graph[id] =  node; 
-    return data;
+    return m.element(data,!isNew);
   }
+  
+  m.element = identity;
 
   m.trust = function(value) {
     value = new String(value);
