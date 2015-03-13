@@ -181,7 +181,6 @@ var tabset = {
 var tab = {
   controller: function(state, tabset) {
     this.tabset = tabset;
-    this.redrawIfVisible = state.redrawIfVisible;
     this.tabIdx=this.tabset.count++;
   },
   
@@ -195,9 +194,7 @@ var tab = {
 
     var style = ctx.display(ctrl.tabIdx);
     tabs[ctrl.tabIdx] = m('li.tab', {onclick:ctx.select.bind(ctx, ctrl.tabIdx),class:ctx.active(ctrl.tabIdx)}, m('a', href, tabName));
-    if (ctrl.redrawIfVisible!==false || style.display!='none'){
-      content[ctrl.tabIdx] = m('.tabcontent', {style:style}, tabContent);
-    }
+    content[ctrl.tabIdx] = m('.tabcontent', {style:style}, tabContent);
   }
 };
 

@@ -42,8 +42,8 @@ var app = function(tabNumber){
             m('tab[href="/accordion-1"]', ['Accordion 1', m('accordion-page')]),
             m('tab[href="/accordion-2"]', ['Accordion 2', m('accordion-page')]),
             m('tab[href="/modal"]',       ['Modal dialog', m('modal-page')]),
-            m('tab[href="/todos"]', {state:{redrawIfVisible:false}}, ['Todo List', m('todos-page')]),
-            m('tab[href="/todos-xp"]', {state:{redrawIfVisible:false}} , ['Experimental', m('experimental-page')])
+            m('tab[href="/todos"]',       ['Todo List', m('todos-page')]),
+            m('tab[href="/todos-xp"]',    ['Experimental', m('experimental-page')])
           ]
         )
       ];
