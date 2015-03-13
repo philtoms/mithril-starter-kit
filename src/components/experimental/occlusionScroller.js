@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(model) {
+module.exports = {
 
   // Component controllers are instanced with optional data.
   // This data is part of the interface definition that users
@@ -8,69 +8,68 @@ module.exports = function(model) {
   // the data must contain:
   //  items:  function returning a set of scrollable items 
   //  page:   the number of line to display on a page
-  return {
-    controller: function() {
+  controller: function(state) {
 
-      this.itemHeight=model.itemHeight || 58;
-      var scroller={scrollTop:0};
+    this.model = state;
+    this.itemHeight=this.model.itemHeight || 58;
+    var scroller={scrollTop:0};
 
-      this.setup = function(element,done){
-        if (!done){
-          scroller = element;
-          element.addEventListener('scroll', function(e) {
-            m.redraw(); //notify view
-          });
-        }
-      };
+    this.setup = function(element,done){
+      if (!done){
+        scroller = element;
+        element.addEventListener('scroll', function(e) {
+          m.redraw(); //notify view
+        });
+      }
+    };
 
-      this.pageY = function(){
-        return scroller.scrollTop;
-      };
+    this.pageY = function(){
+      return scroller.scrollTop;
+    };
 
-    },
+  },
 
-    // Component views accept a controller and an optional inner argument.
-    // 
-    //  
-    view: function(ctrl) {
+  // Component views accept a controller and an optional inner argument.
+  // 
+  //  
+  view: function(ctrl) {
 
-      // fetch the item list into local scope. Typically this
-      // controller method will be bound to the component controller
-      // throuth the model interface and will return a reference to an 
-      // external list.
-      var items = typeof model.items === 'function'? model.items():model.items;
+    // fetch the item list into local scope. Typically this
+    // controller method will be bound to the component controller
+    // throuth the model interface and will return a reference to an 
+    // external list.
+    var items = typeof ctrl.model.items === 'function'? ctrl.model.items():ctrl.model.items;
 
-      // calculate the begin and end indicies of the scrollable section
-      var begin = ctrl.pageY() / ctrl.itemHeight | 0;
+    // calculate the begin and end indicies of the scrollable section
+    var begin = ctrl.pageY() / ctrl.itemHeight | 0;
 
-      // Add 2 so that the top and bottom of the page are filled with
-      // next/prev item, not just whitespace if item not in full view
-      var end = begin + model.page + 2;
+    // Add 2 so that the top and bottom of the page are filled with
+    // next/prev item, not just whitespace if item not in full view
+    var end = begin + ctrl.model.page + 2;
 
-      var offset = ctrl.pageY() % ctrl.itemHeight;
-      var height = Math.min(items.length,model.page) * ctrl.itemHeight + 'px';
+    var offset = ctrl.pageY() % ctrl.itemHeight;
+    var height = Math.min(items.length,ctrl.model.page) * ctrl.itemHeight + 'px';
 
-      // add our own identity and style to the element. Note that any values
-      // created here may be overridden by the component instance
-      return m('.occlusionScroller', {style:{overflow:'scroll', height: height},config:ctrl.setup}, [
-        
-        m('.list', {style: {height: items.length * ctrl.itemHeight + 'px', position: 'relative', top: -offset + 'px'}}, [
-          m('ul', {style: {paddingTop: ctrl.pageY() + 'px'}}, [
+    // add our own identity and style to the element. Note that any values
+    // created here may be overridden by the component instance
+    return m('.occlusionScroller', {style:{overflow:'scroll', height: height},config:ctrl.setup}, [
+      
+      m('.list', {style: {height: items.length * ctrl.itemHeight + 'px', position: 'relative', top: -offset + 'px'}}, [
+        m('ul', {style: {paddingTop: ctrl.pageY() + 'px'}}, [
 
-            // merge the page content into the flow with a standard map
-            items.slice(begin, end).map(function(item, idx) {
+          // merge the page content into the flow with a standard map
+          items.slice(begin, end).map(function(item, idx) {
 
-              // register the child template. Notice that we 
-              // are passing it as an object and not as a string tagname.
-              // Mithril.Element can distinguish between compiled components 
-              // and precompiled cells
-              // 
-              return m(ctrl.inner(item), {id:'os'+idx+begin});
-            })
+            // register the child template. Notice that we 
+            // are passing it as an object and not as a string tagname.
+            // Mithril.Element can distinguish between compiled components 
+            // and precompiled cells
+            // 
+            return m(ctrl.inner, {state:item});
+          })
 
-          ])
         ])
-      ]);  
-    }
-  };
+      ])
+    ]);  
+  }
 };

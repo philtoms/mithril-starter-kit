@@ -5,6 +5,7 @@ var list = [];
 
 // Todo Model
 function Todo(data){
+  this.id = list.length;
   this.title = m.prop(data.title);
   this.completed = m.prop(false);  
   this.remove = function(){

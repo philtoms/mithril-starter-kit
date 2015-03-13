@@ -19,7 +19,7 @@ module.exports = {
   	var amountCompleted = ctrl.amountCompleted();
   	var amountActive = app.todos.list.length - amountCompleted;
   
-  	return m('footer#footer', [
+  	return m('$footer#footer', [
   		m('span#todo-count', [
   			m('strong', amountActive), ' item' + (amountActive !== 1 ? 's' : '') + ' left'
   		]),

@@ -3,11 +3,11 @@
 // todo modules
 var app = require('./app');
 var model = require('./model');
-var item = require('./item');
 var footer = require('./footer');
 
 // mithril.elements
-var scroller = require('../occlusionScroller');
+m.element('scroller', require('../occlusionScroller'));
+m.element('item', require('./item'));
 
 module.exports = {
 
@@ -68,7 +68,7 @@ module.exports = {
 
   view: function(ctrl) {
     return m('section#todoapp.exp',[
-      m('header#header', [
+      m('$header#header', [
         m('h1', 'too many todos'),
         m('input#new-todo[placeholder="What needs to be done?"]', { 
           onkeypress: app.watchInput(
@@ -84,8 +84,8 @@ module.exports = {
             onclick: ctrl.completeAll,
             checked: ctrl.allCompleted()
         }),
-        m(scroller({items:ctrl.list,page:6}), {id:'todo-list'},[
-          item
+        m('scroller#todo-list', {state:{items:ctrl.list,page:6}},[
+          'item'
         ])
       ]),
       app.todoCount === 0 ? '' : footer(ctrl)

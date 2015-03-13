@@ -20,7 +20,7 @@ module.exports = {
       }),
       m('ul#todo-list', [
         app.todos.list.filter(app.isVisible).map(function (task) {
-          return m(ctrl.inner(task),{id:task.id});
+          return m(ctrl.inner,{state:task,id:task.id});
         })
       ])
     ]);

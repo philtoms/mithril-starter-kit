@@ -6,11 +6,11 @@
 var app = require('./app');
 var model = require('./model');
 
-var header = require('./header');
-var newTask = require('./new-task');
-var listOfTasks = require('./list-of-tasks');
-var task = require('./task');
-var footer = require('./footer');
+m.element('header',require('./header'));
+m.element('newTask', require('./new-task'));
+m.element('listOfTasks', require('./list-of-tasks'));
+m.element('task', require('./task'));
+m.element('footer', require('./footer'));
 
 module.exports = {
   controller: function(){
@@ -24,13 +24,13 @@ module.exports = {
   }, 
   view: function(){
     return m('#todoapp',{key:'todos'},[
-    	m(header,[
-    		m(newTask)
+    	m('header',[
+    		m('newTask')
     	]),
-  		m(listOfTasks, [
-  			task
+  		m('listOfTasks', [
+  			'task'
   		]),
-    	m(footer)
+    	m('footer')
     ]);
 	}
 };
